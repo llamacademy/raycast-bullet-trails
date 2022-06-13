@@ -16,11 +16,9 @@ namespace StarterAssets
 		[Header("Movement Settings")]
 		public bool analogMovement;
 
-#if !UNITY_IOS || !UNITY_ANDROID
 		[Header("Mouse Cursor Settings")]
 		public bool cursorLocked = true;
 		public bool cursorInputForLook = true;
-#endif
 
 #if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
 		public void OnMove(InputValue value)
@@ -45,8 +43,6 @@ namespace StarterAssets
 		{
 			SprintInput(value.isPressed);
 		}
-#else
-	// old input sys if we do decide to have it (most likely wont)...
 #endif
 
 
@@ -69,9 +65,7 @@ namespace StarterAssets
 		{
 			sprint = newSprintState;
 		}
-
-#if !UNITY_IOS || !UNITY_ANDROID
-
+		
 		private void OnApplicationFocus(bool hasFocus)
 		{
 			SetCursorState(cursorLocked);
@@ -81,9 +75,6 @@ namespace StarterAssets
 		{
 			Cursor.lockState = newState ? CursorLockMode.Locked : CursorLockMode.None;
 		}
-
-#endif
-
 	}
 	
 }

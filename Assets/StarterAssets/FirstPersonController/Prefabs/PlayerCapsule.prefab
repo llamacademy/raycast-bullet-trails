@@ -208,8 +208,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 513
   CinemachineCameraTarget: {fileID: 4135013735270702863}
-  TopClamp: 90
-  BottomClamp: -90
+  TopClamp: 89
+  BottomClamp: -89
 --- !u!114 &1978471637655604388
 MonoBehaviour:
   m_ObjectHideFlags: 0

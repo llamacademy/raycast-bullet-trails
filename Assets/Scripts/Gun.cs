@@ -20,6 +20,8 @@ public class Gun : MonoBehaviour
     private float ShootDelay = 0.5f;
     [SerializeField]
     private LayerMask Mask;
+    [SerializeField]
+    private float BulletSpeed = 100;
 
     private Animator Animator;
     private float LastShootTime;
@@ -44,7 +46,16 @@ public class Gun : MonoBehaviour
             {
                 TrailRenderer trail = Instantiate(BulletTrail, BulletSpawnPoint.position, Quaternion.identity);
 
-                StartCoroutine(SpawnTrail(trail, hit));
+                StartCoroutine(SpawnTrail(trail, hit.point, hit.normal, true));
+
+                LastShootTime = Time.time;
+            }
+            // this has been updated to fix a commonly reported problem that you cannot fire if you would not hit anything
+            else
+            {
+                TrailRenderer trail = Instantiate(BulletTrail, BulletSpawnPoint.position, Quaternion.identity);
+
+                StartCoroutine(SpawnTrail(trail, transform.forward * 100, Vector3.zero, false));
 
                 LastShootTime = Time.time;
             }
@@ -69,21 +80,28 @@ public class Gun : MonoBehaviour
         return direction;
     }
 
-    private IEnumerator SpawnTrail(TrailRenderer Trail, RaycastHit Hit)
+    private IEnumerator SpawnTrail(TrailRenderer Trail, Vector3 HitPoint, Vector3 HitNormal, bool MadeImpact)
     {
-        float time = 0;
+        // This has been updated from the video implementation to fix a commonly raised issue about the bullet trails
+        // moving slowly when hitting something close, and not
         Vector3 startPosition = Trail.transform.position;
+        float distance = Vector3.Distance(Trail.transform.position, HitPoint);
+        float remainingDistance = distance;
 
-        while (time < 1)
+        while (remainingDistance > 0)
         {
-            Trail.transform.position = Vector3.Lerp(startPosition, Hit.point, time);
-            time += Time.deltaTime / Trail.time;
+            Trail.transform.position = Vector3.Lerp(startPosition, HitPoint, 1 - (remainingDistance / distance));
+
+            remainingDistance -= BulletSpeed * Time.deltaTime;
 
             yield return null;
         }
         Animator.SetBool("IsShooting", false);
-        Trail.transform.position = Hit.point;
-        Instantiate(ImpactParticleSystem, Hit.point, Quaternion.LookRotation(Hit.normal));
+        Trail.transform.position = HitPoint;
+        if (MadeImpact)
+        {
+            Instantiate(ImpactParticleSystem, HitPoint, Quaternion.LookRotation(HitNormal));
+        }
 
         Destroy(Trail.gameObject, Trail.time);
     }
